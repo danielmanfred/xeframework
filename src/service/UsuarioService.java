@@ -1,7 +1,6 @@
 package service;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import dao.UsuarioDAO;
@@ -9,39 +8,103 @@ import domain.Usuario;
 import utility.Conexao;
 
 public class UsuarioService {
-	
+
 	private List<Usuario> usuarios;
 	private Usuario usuario;
-	
-	Conexao conexao = new Conexao();
-	
+	private UsuarioDAO dao;
+
+	public UsuarioService(Conexao conexao) {
+		dao = new UsuarioDAO();
+		usuarios = new ArrayList<>();
+		dao.setConexao(conexao);
+	}
+
 	public List<Usuario> getUsuarios() {
 		return usuarios;
 	}
+
 	public void setUsuarios(List<Usuario> usuarios) {
 		this.usuarios = usuarios;
 	}
+
+	public void criarConta(String nome, String senha) {
+		dao.salvar(nome, senha);
+		logar(nome, senha);
+	}
+
+	public void excluirConta(Integer id) {
+
+	}
+
+	public void alterarNome(Integer id, String nome) {
+
+	}
+
+	public Integer buscar(String nome, String senha) {
+
+		return null;
+	}
+
+	public void logar(String nome, String senha) {
+
+		usuario = dao.logar(nome, senha);
+	}
+
+	public void demandar(String nome, String descricao, Integer categoria) {
+		ItemService is = new ItemService(dao.getConexao());
+		Integer item;
+
+		item = is.adicionarItem(nome, descricao, categoria);
+
+		DemandaService ds = new DemandaService(dao.getConexao());
+
+		ds.criarDemanda(usuario.getId(), item);
+	}
+
+	public void ofertarDemanda(Double valor, Integer demanda) {
+		OfertaDemandadaService ods = new OfertaDemandadaService(dao.getConexao());
+		
+		ods.adicionarOferta(valor, usuario.getId(), demanda);
+	}
+
+	public void ofertar(String nome, String descricao, Integer categoria, Double valor) {
+		ItemService is = new ItemService(dao.getConexao());
+		Integer item;
+
+		item = is.adicionarItem(nome, descricao, categoria);
+		
+		OfertaNaoDemandadaService onds = new OfertaNaoDemandadaService(dao.getConexao());
+		
+		onds.adicionarOferta(valor, usuario.getId(), item);
+	}
 	
-	public void criarConta(String nome, Integer nota, String senha) {
-		UsuarioDAO dao = new UsuarioDAO();
+	public void visualizarListaOfertas(Integer categoria) {
+		OfertaNaoDemandadaService onds = new OfertaNaoDemandadaService(dao.getConexao());
 		
-		usuario = new Usuario();
+		onds.listarOfertas(categoria);
+	}
+	
+	public void selecionarDemanda() {
 		
-		usuario.setNome(nome);
-		usuario.setNota(nota);
-		usuario.setSenha(senha);
+	}
+	
+	public void selecionarOfertaNaoDemandada(Integer oferta) {
+		SelecaoOferta sond = new SelecaoOfertaNaoDemandada();
 		
-		String sql = dao.salvar();
-		try {
-			PreparedStatement statement = conexao.connection.prepareStatement(sql);
-			statement.setString(1, usuario.getNome());
-			statement.setInt(2, usuario.getNota());
-			statement.setString(3, usuario.getSenha());
-			statement.executeUpdate(); 
-			System.out.println("Conta criada com sucesso");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			System.out.println("\nErro na criação da conta");
-		}
+		sond.selecionarOferta(oferta, dao.getConexao());
+	}
+	
+	public void selecionarOfertaDemandada(Integer oferta) {
+		SelecaoOferta sod = new SelecaoOfertaDemandada();
+		
+		sod.selecionarOferta(oferta, dao.getConexao());
+	}
+	
+	public void visualizarDemandasUsuario() {
+		
+	}
+	
+	public List<Usuario> listarUsuarios() {
+		return dao.listar();
 	}
 }

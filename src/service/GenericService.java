@@ -1,12 +1,12 @@
-package dao;
+package service;
 
 import utility.Conexao;
 
-public class GenericDao {
-	
+public class GenericService {
+
 	protected Conexao conexao;
 	
-	public GenericDao() {
+	public GenericService() {
 		                                        
 	}
 	
@@ -17,5 +17,4 @@ public class GenericDao {
 	public void setConexao(Conexao conexao) {
 		this.conexao = conexao;
 	}
-	
 }
